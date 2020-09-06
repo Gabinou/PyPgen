@@ -25,7 +25,7 @@ Keywords: Poisson Process, Point process, Spatial Point patterns
 # Glossary
 
 - *A*: Data space
-- *&lambda*: Process intensity (function for non-homogeneous)
+- *\lambda*: Process intensity (function for non-homogeneous)
 - PP: Point Process
 - HPP: Homogeneous Poisson Process
 - NHPP: Non-Homogeneous Poisson Process
