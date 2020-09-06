@@ -5,7 +5,7 @@
 The functions presented here are convenient for cases where the spase is rectangular.
 
 
-Convenient functions for HPP generation are given, but points can be generated using only *numpy*. With the HPP parameter &lambda, the total number of counts in the space *N(A) ~ P(&lambda)*, and can be generated using *np.random.poisson* if need be. Then, you only need to generate *N(A)* samples uniformly distributed in the space using *np.random.uniform* for each dimension. If the data space is not recangular, the points can be generate in any convenient shape, then only the points which lie in *A* are retained.
+Convenient functions for HPP generation are given, but points can be generated using only *numpy*. With the HPP parameter *\lambda*, the total number of counts in the space *N(A) ~ P(\lambda)*, and can be generated using *np.random.poisson* if need be. Then, you only need to generate *N(A)* samples uniformly distributed in the space using *np.random.uniform* for each dimension. If the data space is not recangular, the points can be generate in any convenient shape, then only the points which lie in *A* are retained.
 
 ## MISC
 
