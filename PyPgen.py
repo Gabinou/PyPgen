@@ -53,7 +53,7 @@ def HPP_temporal(rate, bounds, blocksize=1000):
     :param list bounds: list-like of 2 elements
     :param int realizations: 
     :param int blocksize: exponential to generate before checking bounds 
-    :return: numpyndarray of samples*dimensions*realizations
+    :return: numpyndarray of samples
     """ 
     if (len(bounds) != 2):
         raise TypeError("Input bounds must have exactly two elements.")
