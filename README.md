@@ -1,10 +1,11 @@
 # PyPgen
 ## Point Process Generation
 
-## Notes on PP generation
+## Notes on HPP generation
 The functions presented here are convenient for cases where the spase is rectangular.
 
-Points from HPP's can easily be generated using only *numpy*. With the HPP parameter &lambda, the total number of counts in the space *N(A) ~ P(&lambda)*, and can be generated using *np.random.poisson* if need be. Then, you only need to generate *N(A)* samples uniformly distributed in the space using *np.random.uniform* for each dimension. If the data space is not recangular, the points can be generate in any convenient shape, then only the points which lie in *A* are retained.
+
+Convenient functions for HPP generation are given, but points can be generated using only *numpy*. With the HPP parameter &lambda, the total number of counts in the space *N(A) ~ P(&lambda)*, and can be generated using *np.random.poisson* if need be. Then, you only need to generate *N(A)* samples uniformly distributed in the space using *np.random.uniform* for each dimension. If the data space is not recangular, the points can be generate in any convenient shape, then only the points which lie in *A* are retained.
 
 ## MISC
 
@@ -15,7 +16,8 @@ Keywords: Poisson Process, Point process, Spatial Point patterns
 
 ## Glossary
 
-- A: Data space
+- *A*: Data space
+- *&lambda*: Process intensity (function for non-homogeneous)
 - PP: Point Process
 - HPP: Homogeneous Poisson Process
 - NHPP: Non-Homogeneous Poisson Process
