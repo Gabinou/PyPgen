@@ -1,65 +1,78 @@
 # Code créé par Gabriel Taillon le 6 Septembre 2020
+import os
+import sys
+import numpy as np
 
+# Glossary
+# - *A*: Data space
+# - *&lambda*: Process intensity (function for non-homogeneous)
+# - PP: Point Process
+# - HPP: Homogeneous Poisson Process
+# - NHPP: Non-Homogeneous Poisson Process
+# - MPP: Mixed Poisson Process
+# - CP: Cox Process/Doubly Stochastic Point Process
+# - MaPP: Markov Point Process / Finite Gibbs Point Process
+#     - As far as I know, those are the same. Refer to [1-3].
+
+# References
 # [1] Diggle, Peter J. Statistical analysis of spatial and spatio-temporal point patterns. CRC press, 2013.
-
-def HPPMultidimSamples(Samples, Rate, ArrDomainSizes, silent=0):
-    if not silent:
-        print('Homogeneous Poisson Process in '+str(len(ArrDomainSizes)) +
-              ' dimensions, using HPPSamples. Orderly? No simultaneous events.')
-    Intervals, Time, Cumul = HPPSamples(Samples, Rate)
-    AllUProbs = np.random.rand(len(Intervals), len(ArrDomainSizes))
-    AllEventPos = AllUProbs*ArrDomainSizes
-    return(Intervals, Time, Cumul, AllEventPos)
+# [2] Illian, Janine, et al. Statistical analysis and modelling of spatial point patterns. Vol. 70. John Wiley & Sons, 2008.
+#     # n: current total of points
+# [3] Jensen, Eva B. Vedel, and Linda Stougaard Nielsen. "Inhomogeneous Markov point processes by transformation." Bernoulli 6.5 (2000): 761-782.
+# [4] Snyder, Donald L., and Michael I. Miller. Random point processes in time and space. Springer Science & Business Media, 2012.
+# [5] Resnick, Sidney I. Adventures in stochastic processes. Springer Science & Business Media, 1992.
+# [6] Grandell, Jan. Mixed poisson processes. Vol. 77. CRC Press, 1997.
 
 
-def HPPmaxT(maxT, Rate, silent=0):
-    # MPPM Computes 1D homogeneous poisson process samples until maxT
-    if not silent:
-        print('Taking samples until T=' + str(maxT) +
-              ' time of a Homogeneous Poisson Process of rate lambda='+str(('%.4e' % Rate))+' Hz.')
-    Intervals = [0]
-    Time = [0]
-    i = 0
-    while Time[-1] < maxT:
-        Intervals = np.append(Intervals, random.expovariate(Rate))
-        Time = np.append(Time, Time[-1] + Intervals[-1])
-        i += 1
-    Cumul = np.arange(0, len(Time), 1)
+def HPP_rate(rate, bounds, realizations=1):
+    """ Random number of HPP samples with parameter rate in bounds
 
-    return(Intervals[1:], Time[1:], Cumul)
+    :param int samples
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations: 
+    :return: numpyndarray of samples_realization1*samples_realization2*...*dimensions
+    """
+    npbounds = np.array(bounds)
+    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    dimensions = int(npbounds.shape[0])
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    n_volume = np.prod(bounds_high-bounds_low)
+    points_per_realization = np.random.poisson(
+        int(rate*n_volume), realizations).astype(int)
+    points = np.random.uniform(
+        bounds_low, bounds_high, (*points_per_realization, dimensions))
+    return(points)
 
 
-def HPPSamples(Samples, Rate, Realizations=1, silent=0):
-    #  Computes 1D homogeneous poisson process samples.
-    if not silent:
-        print('Taking '+str(Samples) +
-              ' samples of a Homogeneous Poisson Process of rate lambda='+str(('%.4e' % Rate))+' Hz.')
-    AllIntervals = []
-    AllTime = []
-    AllCumul = []
-    j = 0
-    while j < Realizations:
-        i = 0
-        Intervals = []
-        while i < Samples:
-            Intervals = np.append(Intervals,  random.expovariate(Rate))
-            i += 1
-        Time = np.cumsum(Intervals)
-        Cumul = np.arange(0, Samples, 1)
-        if AllIntervals == []:
-            AllIntervals = np.reshape(Intervals, (len(Intervals), 1))
-            AllTime = np.reshape(Time, (len(Time), 1))
-            AllCumul = np.reshape(Cumul, (len(Cumul), 1))
-        else:
-            AllIntervals = np.hstack(
-                (AllIntervals, np.reshape(Intervals, (len(Intervals), 1))))
-            AllTime = np.hstack((AllTime, np.reshape(Time, (len(Time), 1))))
-            AllCumul = np.hstack(
-                (AllCumul, np.reshape(Cumul, (len(Cumul), 1))))
-        j += 1
+def HPP_temporal(rate, bounds, realizations=1):
+    """ Generate HPP samples for a temporal HPP using exponential distribution
+    of inter-arrival times until bounds[1] is exceeded
 
-    return(AllIntervals, AllTime, AllCumul)
+    :param int rate parameter of the poisson process
+    :param list bounds: list-like of 2 elements
+    :param int realizations: 
+    :return: numpyndarray of samples*dimensions*realizations
+    """
+    np.random.exponential(1/rate)
 
+
+def HPP_samples(samples, bounds, realizations=1):
+    """ Generate fixed HPP samples in bounds.
+
+    :param int samples
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations: 
+    :return: numpyndarray of samples*dimensions*realizations
+    """
+    npbounds = np.array(bounds)
+    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    dimensions = int(npbounds.shape[0])
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    points_per_realization = np.tile(samples, realizations)
+    points = np.random.uniform(bounds_low, bounds_high, (*points_per_realization, dimensions))
+    return(points)
 
 def MultiVarNHPPInvAlgoSamples(lambdafunc, Boundaries, silent=0):
     """ Computes sample random points in a multidimensional space, using a multidimensional rate function. Uses the inversion algorithm. 
@@ -89,7 +102,6 @@ def MultiVarNHPPInvAlgoSamples(lambdafunc, Boundaries, silent=0):
     # print(Boundaries.shape)
     X2D = InvSamples(Boundaries[0], Lambda1func, InvFnFuncDict)
     return(X2D)
-
 
 
 def MultiVarNHPPThinSamples(lambdaa, Boundaries, Samples=100, blocksize=1000, silent=0):
