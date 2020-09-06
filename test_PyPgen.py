@@ -11,6 +11,20 @@ path2res = os.path.join(scripthpath, os.path.splitext(
 if not os.path.exists(path2res):
     os.makedirs(path2res)
 
+rate = 5
+bounds = [1, 10]
+out = PyPgen.HPP_temporal(rate=rate, bounds=bounds)
+assert(np.amin(out) > bounds[0])
+assert(np.amax(out) < bounds[1])
+plt.title(str(len(out)) + " samples of a temporal HPP of rate " +
+          str(rate) + " in 10s")
+plt.plot(out, np.arange(len(out)), ".k")
+plt.xlabel("Time [s]")
+plt.ylabel("Count")
+plt.savefig(os.path.join(path2res, "HPP_temporal_test.png"),
+            bbox_inches='tight', dpi=100, edgecolor='w')
+plt.show()
+
 samples = 20
 realizations = 3
 bounds = [[0, 10], [0, 10]]

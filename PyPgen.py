@@ -45,7 +45,7 @@ def HPP_rate(rate, bounds, realizations=1):
     return(points)
 
 
-def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
+def HPP_temporal(rate, bounds, blocksize=1000):
     """ Generate HPP samples for a temporal HPP using exponential distribution
     of inter-arrival times until bounds[1] is exceeded
 
@@ -54,10 +54,16 @@ def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
     :param int realizations: 
     :param int blocksize: exponential to generate before checking bounds 
     :return: numpyndarray of samples*dimensions*realizations
-    """
-    points = np.array([])
-    while((points[-1] + np.amin(bounds)) < np.amax(bounds)):
-        np.random.exponential(1/rate)
+    """ 
+    if (len(bounds) != 2):
+        raise TypeError("Input bounds must have exactly two elements.")
+    points = np.array([np.amin(bounds)])
+    while(points[-1] < np.amax(bounds)):
+        variates = np.random.exponential(1.0/float(rate), blocksize)
+        points = np.append(points, np.amin(bounds) + np.cumsum(variates))
+    points_inbound = np.sort(points[(points < np.amax(bounds))
+                            * (points > np.amin(bounds))])
+    return(points_inbound)
 
 
 def HPP_samples(samples, bounds, realizations=1):
@@ -74,8 +80,10 @@ def HPP_samples(samples, bounds, realizations=1):
     bounds_low = np.amin(npbounds, axis=1)
     bounds_high = np.amax(npbounds, axis=1)
     points_per_realization = np.tile(samples, realizations)
-    points = np.random.uniform(bounds_low, bounds_high, (*points_per_realization, dimensions))
+    points = np.random.uniform(
+        bounds_low, bounds_high, (*points_per_realization, dimensions))
     return(points)
+
 
 def MultiVarNHPPInvAlgoSamples(lambdafunc, Boundaries, silent=0):
     """ Computes sample random points in a multidimensional space, using a multidimensional rate function. Uses the inversion algorithm. 
