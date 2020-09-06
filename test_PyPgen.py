@@ -37,13 +37,36 @@ assert(out.shape[0] == samples)
 assert((len(out.shape) - 1) == realizations)
 
 
-plt.title("20 samples of a HPP in 10 unit square")
+plt.title(str(samples) + " samples of a HPP in 10 unit square")
 plt.scatter(out[:, 0], out[:, 1], c="k")
 plt.xlabel("X")
 plt.ylabel("Y")
-plt.show()
 plt.savefig(os.path.join(path2res, "HPP_samples_2Dtest.png"),
             bbox_inches='tight', dpi=100, edgecolor='w')
+# plt.show()
+plt.close("all")
+
+
+rate = 2
+realizations = 1
+bounds = [[0, 10], [0, 10]]
+dimensions = len(bounds)
+out = PyPgen.HPP_rate(rate=rate, bounds=bounds,
+                      realizations=realizations)
+assert(np.amin(out[:, 0]) > bounds[0][0])
+assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(out.shape[-1] == dimensions)
+assert((len(out.shape) - 1) == realizations)
+
+
+plt.title(str(len(out)) + " samples of a HPP of rate " +
+          str(rate) + " in 10 unit square")
+plt.scatter(out[:, 0], out[:, 1], c="k")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.savefig(os.path.join(path2res, "HPP_rate_2Dtest.png"),
+            bbox_inches='tight', dpi=100, edgecolor='w')
+# plt.show()
 plt.close("all")
 
 

@@ -45,16 +45,19 @@ def HPP_rate(rate, bounds, realizations=1):
     return(points)
 
 
-def HPP_temporal(rate, bounds, realizations=1):
+def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
     """ Generate HPP samples for a temporal HPP using exponential distribution
     of inter-arrival times until bounds[1] is exceeded
 
     :param int rate parameter of the poisson process
     :param list bounds: list-like of 2 elements
     :param int realizations: 
+    :param int blocksize: exponential to generate before checking bounds 
     :return: numpyndarray of samples*dimensions*realizations
     """
-    np.random.exponential(1/rate)
+    points = np.array([])
+    while((points[-1] + np.amin(bounds)) < np.amax(bounds)):
+        np.random.exponential(1/rate)
 
 
 def HPP_samples(samples, bounds, realizations=1):
