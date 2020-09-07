@@ -38,8 +38,9 @@ def HPP_samples(samples, bounds, realizations=1):
     bounds_low = np.amin(npbounds, axis=1)
     bounds_high = np.amax(npbounds, axis=1)
     points_per_realization = np.tile(samples, realizations)
-    points = np.random.uniform(
-        bounds_low, bounds_high, (*points_per_realization, dimensions))
+    points = []
+    for i in np.arange(realizations):
+        points.append(np.random.uniform(bounds_low, bounds_high, (points_per_realization[i], dimensions)))
     return(points)
 
 
@@ -83,6 +84,7 @@ def HPP_temporal(rate, bounds, blocksize=1000):
     points_inbound = np.sort(points[(points < np.amax(bounds))
                                     * (points > np.amin(bounds))])
     return(points_inbound)
+
 
 def NHPP(rate, rate_max, bounds, realizations=1, algo="thinning"):
     """Random points in n-dimensions with a multidimensional rate function/rate matrix.
