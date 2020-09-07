@@ -60,8 +60,10 @@ def HPP_rate(rate, bounds, realizations=1):
     n_volume = np.prod(bounds_high-bounds_low)
     points_per_realization = np.random.poisson(
         rate*n_volume, realizations).astype(int)
-    points = np.random.uniform(
-        bounds_low, bounds_high, (*points_per_realization, dimensions))
+    points = []
+    for i in np.arange(realizations):
+        points.append(np.random.uniform(
+        bounds_low, bounds_high, (points_per_realization[i], dimensions)))
     return(points)
 
 
