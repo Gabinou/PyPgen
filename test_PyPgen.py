@@ -12,6 +12,7 @@ period = 2
 amplitude = 3
 offset = 1
 rate_max = amplitude + offset
+dimensions = 1
 
 
 def rate_halfsinus1D(time):
@@ -22,6 +23,7 @@ def rate_halfsinus1D(time):
 
 bounds = [1, 10]
 out = PyPgen.NHPP(rate_halfsinus1D, rate_max, bounds)
+assert(out.shape[-1] == dimensions)
 assert(len(out.shape) > 1)
 assert(np.amin(out) > bounds[0])
 assert(np.amax(out) < bounds[1])
@@ -33,6 +35,7 @@ period_2 = 1
 amplitude = 1
 offset = 1
 rate_max = amplitude + amplitude + offset
+dimensions = 2
 
 
 def rate_halfsinus2D(x_1, x_2):
@@ -44,11 +47,44 @@ def rate_halfsinus2D(x_1, x_2):
 
 bounds = [[1, 10], [10, 20]]
 out = PyPgen.NHPP(rate_halfsinus2D, rate_max, bounds)
+assert(out.shape[-1] == dimensions)
 assert(len(out.shape) > 1)
 assert(np.amin(out[:, 0]) > bounds[0][0])
 assert(np.amax(out[:, 0]) < bounds[0][1])
 assert(np.amin(out[:, 1]) > bounds[1][0])
 assert(np.amax(out[:, 1]) < bounds[1][1])
+
+
+phase_1 = 0
+phase_2 = 0
+phase_3 = 0
+period_1 = 1
+period_2 = 2
+period_3 = 3
+amplitude = 1
+offset = 1
+rate_max = amplitude + amplitude + amplitude + offset
+dimensions = 3
+
+
+def rate_halfsinus3D(x_1, x_2, x_3):
+    sins = np.sin(2.*np.pi*x_1/period_1 + phase) + \
+        np.sin(2.*np.pi*x_2/period_2 + phase) + \
+        np.sin(2.*np.pi*x_3/period_3 + phase)
+    out = amplitude*(sins*(sins > 0)) + offset
+    return(out)
+
+
+bounds = [[1, 10], [10, 20], [20, 21]]
+out = PyPgen.NHPP(rate_halfsinus3D, rate_max, bounds)
+assert(out.shape[-1] == dimensions)
+assert(len(out.shape) > 1)
+assert(np.amin(out[:, 0]) > bounds[0][0])
+assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
+assert(np.amin(out[:, 2]) > bounds[2][0])
+assert(np.amax(out[:, 2]) < bounds[2][1])
 sys.exit()
 
 # HPP TESTING
