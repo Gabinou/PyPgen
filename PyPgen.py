@@ -99,42 +99,8 @@ def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
     return(points)
 
 
-def NHPP_expectation(expectation, bounds, realizations=1, algo="thinning"):
-    """Random points in n-dimensions with a multidimensional rate function/rate matrix.
-    Uses the thinning/acceptance-rejection algorithm.
-
-    :param function expecatation 
-    :param list bounds: list-like of len = dimensions number
-    :param int realizations:
-    :return: numpyndarray of samples
-    """
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
-    n_volume = np.prod(bounds_high-bounds_low)
-    points_num = np.random.poisson(rate_max*n_volume)
-    if not callable(rate):
-        raise TypeError("Rate should be a function")
-    if (algo == "thinning") | (algo == "accept-reject"):
-        for i in np.arange(realizations):
-            points_unthinned = np.random.uniform(
-                bounds_low, bounds_high, (points_num, dimensions))
-            rate_ratio = np.ravel(
-                rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
-            accept_prob = np.random.uniform(size=points_num)
-            points.append(points_unthinned[rate_ratio > accept_prob, :])
-    elif (algo == "inversion"):
-        raise ValueError("NHPP_rate does not use inversion algorithm")
-    elif (algo == "order"):
-        raise ValueError("NHPP_rate does not use order statistics algorithm")
-    return(points)
-
-
-def NHPP_rate(rate, rate_max, bounds, realizations=1, algo="thinning"):
-    """Random points in n-dimensions with a multidimensional rate function/rate matrix.
+def NHPP_rate(rate, rate_max, bounds, realizations=1):
+    """Random points in n-dimensions with a multidimensional rate function
     Uses the thinning/acceptance-rejection algorithm.
 
     :param function rate intensity function of the NHPP 
@@ -148,23 +114,18 @@ def NHPP_rate(rate, rate_max, bounds, realizations=1, algo="thinning"):
 
     bounds_low = np.amin(npbounds, axis=1)
     bounds_high = np.amax(npbounds, axis=1)
-    n_volume = np.prod(bounds_high-bounds_low)
-    points_num = np.random.poisson(rate_max*n_volume)
+    n_volume = np.prod(bounds_high - bounds_low)
     points = []
     if not callable(rate):
         raise TypeError("Rate should be a function")
-    if (algo == "thinning") | (algo == "accept-reject"):
-        for i in np.arange(realizations):
-            points_unthinned = np.random.uniform(
-                bounds_low, bounds_high, (points_num, dimensions))
-            rate_ratio = np.ravel(
-                rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
-            accept_prob = np.random.uniform(size=points_num)
-            points.append(points_unthinned[rate_ratio > accept_prob, :])
-    elif (algo == "inversion"):
-        raise ValueError("NHPP_rate does not use inversion algorithm")
-    elif (algo == "order"):
-        raise ValueError("NHPP_rate does not use order statistics algorithm")
+    for i in np.arange(realizations):
+        points_num = np.random.poisson(rate_max * n_volume)
+        points_unthinned = np.random.uniform(
+            bounds_low, bounds_high, (points_num, dimensions))
+        rate_ratio = np.ravel(
+            rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
+        accept_prob = np.random.uniform(size=points_num)
+        points.append(points_unthinned[rate_ratio > accept_prob, :])
     if realizations == 1:
         points = points[0]
     return(points)
