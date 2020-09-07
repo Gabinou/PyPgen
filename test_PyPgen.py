@@ -22,7 +22,7 @@ def rate_halfsinus1D(time):
 
 
 bounds = [1, 10]
-out = PyPgen.NHPP_rate(rate_halfsinus1D, rate_max, bounds)
+out = PyPgen.NHPP(rate_halfsinus1D, rate_max, bounds)
 assert(out.shape[-1] == dimensions)
 assert(len(out.shape) > 1)
 assert(np.amin(out) > bounds[0])
@@ -46,7 +46,7 @@ def rate_halfsinus2D(x_1, x_2):
 
 
 bounds = [[1, 10], [10, 20]]
-out = PyPgen.NHPP_rate(rate_halfsinus2D, rate_max, bounds)
+out = PyPgen.NHPP(rate_halfsinus2D, rate_max, bounds)
 assert(out.shape[-1] == dimensions)
 assert(len(out.shape) > 1)
 assert(np.amin(out[:, 0]) > bounds[0][0])
@@ -76,7 +76,7 @@ def rate_halfsinus3D(x_1, x_2, x_3):
 
 
 bounds = [[1, 10], [10, 20], [20, 21]]
-out = PyPgen.NHPP_rate(rate_halfsinus3D, rate_max, bounds)
+out = PyPgen.NHPP(rate_halfsinus3D, rate_max, bounds)
 assert(out.shape[-1] == dimensions)
 assert(len(out.shape) > 1)
 assert(np.amin(out[:, 0]) > bounds[0][0])

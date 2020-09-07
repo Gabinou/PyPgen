@@ -99,7 +99,7 @@ def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
     return(points)
 
 
-def NHPP_rate(rate, rate_max, bounds, realizations=1):
+def NHPP(rate, rate_max, bounds, realizations=1):
     """Random points in n-dimensions with a multidimensional rate function
     Uses the thinning/acceptance-rejection algorithm.
 
