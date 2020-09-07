@@ -41,7 +41,8 @@ def HPP_samples(samples, bounds, realizations=1):
     points_per_realization = np.tile(samples, realizations)
     points = []
     for i in np.arange(realizations):
-        points.append(np.random.uniform(bounds_low, bounds_high, (points_per_realization[i], dimensions)))
+        points.append(np.random.uniform(bounds_low, bounds_high,
+                                        (points_per_realization[i], dimensions)))
     if realizations == 1:
         points = points[0]
     return(points)
@@ -66,7 +67,7 @@ def HPP_rate(rate, bounds, realizations=1):
     points = []
     for i in np.arange(realizations):
         points.append(np.random.uniform(
-        bounds_low, bounds_high, (points_per_realization[i], dimensions)))
+            bounds_low, bounds_high, (points_per_realization[i], dimensions)))
     if realizations == 1:
         points = points[0]
     return(points)
@@ -89,15 +90,50 @@ def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
         points.append(np.array([np.amin(bounds)]))
         while(points[i][-1] < np.amax(bounds)):
             variates = np.random.exponential(1.0/float(rate), blocksize)
-            points[i] = np.append(points[i], np.amin(bounds) + np.cumsum(variates))
+            points[i] = np.append(points[i], np.amin(
+                bounds) + np.cumsum(variates))
         points[i] = np.sort(points[i][(points[i] < np.amax(bounds))
-                                        * (points[i] > np.amin(bounds))])
+                                      * (points[i] > np.amin(bounds))])
     if realizations == 1:
         points = points[0]
     return(points)
 
 
-def NHPP(rate, rate_max, bounds, realizations=1, algo="thinning"):
+def NHPP_expectation(expectation, bounds, realizations=1, algo="thinning"):
+    """Random points in n-dimensions with a multidimensional rate function/rate matrix.
+    Uses the thinning/acceptance-rejection algorithm.
+
+    :param function expecatation 
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations:
+    :return: numpyndarray of samples
+    """
+    npbounds = np.array(bounds)
+    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    dimensions = int(npbounds.shape[0])
+
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    n_volume = np.prod(bounds_high-bounds_low)
+    points_num = np.random.poisson(rate_max*n_volume)
+    if not callable(rate):
+        raise TypeError("Rate should be a function")
+    if (algo == "thinning") | (algo == "accept-reject"):
+        for i in np.arange(realizations):
+            points_unthinned = np.random.uniform(
+                bounds_low, bounds_high, (points_num, dimensions))
+            rate_ratio = np.ravel(
+                rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
+            accept_prob = np.random.uniform(size=points_num)
+            points.append(points_unthinned[rate_ratio > accept_prob, :])
+    elif (algo == "inversion"):
+        raise ValueError("NHPP_rate does not use inversion algorithm")
+    elif (algo == "order"):
+        raise ValueError("NHPP_rate does not use order statistics algorithm")
+    return(points)
+
+
+def NHPP_rate(rate, rate_max, bounds, realizations=1, algo="thinning"):
     """Random points in n-dimensions with a multidimensional rate function/rate matrix.
     Uses the thinning/acceptance-rejection algorithm.
 
@@ -114,13 +150,21 @@ def NHPP(rate, rate_max, bounds, realizations=1, algo="thinning"):
     bounds_high = np.amax(npbounds, axis=1)
     n_volume = np.prod(bounds_high-bounds_low)
     points_num = np.random.poisson(rate_max*n_volume)
+    points = []
     if not callable(rate):
         raise TypeError("Rate should be a function")
-    if algo = "thinning":
-        points_unthinned = np.random.uniform(
-            bounds_low, bounds_high, (points_num, dimensions))
-
-        rate_ratio = np.ravel(rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
-        accept_prob = np.random.uniform(size=points_num) 
-        points_thinned = points_unthinned[rate_ratio > accept_prob, :] 
-    return(points_thinned)
+    if (algo == "thinning") | (algo == "accept-reject"):
+        for i in np.arange(realizations):
+            points_unthinned = np.random.uniform(
+                bounds_low, bounds_high, (points_num, dimensions))
+            rate_ratio = np.ravel(
+                rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
+            accept_prob = np.random.uniform(size=points_num)
+            points.append(points_unthinned[rate_ratio > accept_prob, :])
+    elif (algo == "inversion"):
+        raise ValueError("NHPP_rate does not use inversion algorithm")
+    elif (algo == "order"):
+        raise ValueError("NHPP_rate does not use order statistics algorithm")
+    if realizations == 1:
+        points = points[0]
+    return(points)
