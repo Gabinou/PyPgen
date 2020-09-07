@@ -71,7 +71,7 @@ def HPP_rate(rate, bounds, realizations=1):
     return(points)
 
 
-def HPP_temporal(rate, bounds, blocksize=1000):
+def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
     """ Generate HPP samples for a temporal HPP using exponential distribution
     of inter-arrival times until bounds[1] is exceeded
 
@@ -83,13 +83,17 @@ def HPP_temporal(rate, bounds, blocksize=1000):
     """
     if (len(bounds) != 2):
         raise TypeError("Input bounds must have exactly two elements.")
-    points = np.array([np.amin(bounds)])
-    while(points[-1] < np.amax(bounds)):
-        variates = np.random.exponential(1.0/float(rate), blocksize)
-        points = np.append(points, np.amin(bounds) + np.cumsum(variates))
-    points_inbound = np.sort(points[(points < np.amax(bounds))
-                                    * (points > np.amin(bounds))])
-    return(points_inbound)
+    points = []
+    for i in np.arange(realizations):
+        points.append(np.array([np.amin(bounds)]))
+        while(points[i][-1] < np.amax(bounds)):
+            variates = np.random.exponential(1.0/float(rate), blocksize)
+            points[i] = np.append(points[i], np.amin(bounds) + np.cumsum(variates))
+        points[i] = np.sort(points[i][(points[i] < np.amax(bounds))
+                                        * (points[i] > np.amin(bounds))])
+    if realizations == 1:
+        points = points[0]
+    return(points)
 
 
 def NHPP(rate, rate_max, bounds, realizations=1, algo="thinning"):

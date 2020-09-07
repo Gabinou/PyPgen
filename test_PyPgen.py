@@ -109,6 +109,15 @@ plt.savefig(os.path.join(path2res, "HPP_temporal_test.png"),
 # plt.show()
 plt.close("all")
 
+realizations = 3
+rate = 5
+bounds = [1, 10]
+out = PyPgen.HPP_temporal(rate=rate, bounds=bounds, realizations=realizations)
+assert(len(out) == realizations)
+for i in np.arange(realizations):
+    assert(np.amin(out[i]) > bounds[0])
+    assert(np.amax(out[i]) < bounds[1])
+
 samples = 20
 realizations = 3
 bounds = [[0, 10], [0, 10]]
