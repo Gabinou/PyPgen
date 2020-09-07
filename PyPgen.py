@@ -24,54 +24,12 @@ import numpy as np
 # [6] Grandell, Jan. Mixed poisson processes. Vol. 77. CRC Press, 1997.
 
 
-def HPP_rate(rate, bounds, realizations=1):
-    """ Random number of HPP samples with parameter rate in bounds
-
-    :param int samples
-    :param list bounds: list-like of len = dimensions number
-    :param int realizations: 
-    :return: numpyndarray of samples_realization1*samples_realization2*...*dimensions
-    """
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
-    n_volume = np.prod(bounds_high-bounds_low)
-    points_per_realization = np.random.poisson(
-        int(rate*n_volume), realizations).astype(int)
-    points = np.random.uniform(
-        bounds_low, bounds_high, (*points_per_realization, dimensions))
-    return(points)
-
-
-def HPP_temporal(rate, bounds, blocksize=1000):
-    """ Generate HPP samples for a temporal HPP using exponential distribution
-    of inter-arrival times until bounds[1] is exceeded
-
-    :param int rate parameter of the poisson process
-    :param list bounds: list-like of 2 elements
-    :param int realizations: 
-    :param int blocksize: exponential to generate before checking bounds 
-    :return: numpyndarray of samples
-    """ 
-    if (len(bounds) != 2):
-        raise TypeError("Input bounds must have exactly two elements.")
-    points = np.array([np.amin(bounds)])
-    while(points[-1] < np.amax(bounds)):
-        variates = np.random.exponential(1.0/float(rate), blocksize)
-        points = np.append(points, np.amin(bounds) + np.cumsum(variates))
-    points_inbound = np.sort(points[(points < np.amax(bounds))
-                            * (points > np.amin(bounds))])
-    return(points_inbound)
-
-
 def HPP_samples(samples, bounds, realizations=1):
     """ Generate fixed HPP samples in bounds.
 
     :param int samples
     :param list bounds: list-like of len = dimensions number
-    :param int realizations: 
+    :param int realizations:
     :return: numpyndarray of samples*dimensions*realizations
     """
     npbounds = np.array(bounds)
@@ -85,10 +43,52 @@ def HPP_samples(samples, bounds, realizations=1):
     return(points)
 
 
-def MultiVarNHPPInvAlgoSamples(lambdafunc, Boundaries, silent=0):
-    """ Computes sample random points in a multidimensional space, using a multidimensional rate function. Uses the inversion algorithm. 
+def HPP_rate(rate, bounds, realizations=1):
+    """ Random number of HPP samples with parameter rate in bounds
 
-    **Arguments:**  
+    :param float rate
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations:
+    :return: numpyndarray of samples_realization1*samples_realization2*...*dimensions
+    """
+    npbounds = np.array(bounds)
+    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    dimensions = int(npbounds.shape[0])
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    n_volume = np.prod(bounds_high-bounds_low)
+    points_per_realization = np.random.poisson(
+        rate*n_volume, realizations).astype(int)
+    points = np.random.uniform(
+        bounds_low, bounds_high, (*points_per_realization, dimensions))
+    return(points)
+
+
+def HPP_temporal(rate, bounds, blocksize=1000):
+    """ Generate HPP samples for a temporal HPP using exponential distribution
+    of inter-arrival times until bounds[1] is exceeded
+
+    :param int rate parameter of the poisson process
+    :param list bounds: list-like of 2 elements
+    :param int realizations:
+    :param int blocksize: exponential to generate before checking bounds
+    :return: numpyndarray of samples
+    """
+    if (len(bounds) != 2):
+        raise TypeError("Input bounds must have exactly two elements.")
+    points = np.array([np.amin(bounds)])
+    while(points[-1] < np.amax(bounds)):
+        variates = np.random.exponential(1.0/float(rate), blocksize)
+        points = np.append(points, np.amin(bounds) + np.cumsum(variates))
+    points_inbound = np.sort(points[(points < np.amax(bounds))
+                                    * (points > np.amin(bounds))])
+    return(points_inbound)
+
+
+def MultiVarNHPPInvAlgoSamples(lambdafunc, Boundaries, silent=0):
+    """ Computes sample random points in a multidimensional space, using a multidimensional rate function. Uses the inversion algorithm.
+
+    **Arguments:**
         lambdafunc : function
             Rate function. For now, the multidimensional rate cannot be constant.
         Boundaries : (2,n) matrix
@@ -115,11 +115,31 @@ def MultiVarNHPPInvAlgoSamples(lambdafunc, Boundaries, silent=0):
     return(X2D)
 
 
-def MultiVarNHPPThinSamples(lambdaa, Boundaries, Samples=100, blocksize=1000, silent=0):
-    """ Computes sample random points in a multidimensional space, using a multidimensional rate function/rate matrix. Use the thinning/acceptance-rejection algorithm.
+def NHPP(rate, rate_max, bounds, algo="thinning"):
+    """Random points in n-dimensions with a multidimensional rate function/rate matrix.
+    Uses the thinning/acceptance-rejection algorithm.
+    """
+    npbounds = np.array(bounds)
+    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    dimensions = int(npbounds.shape[0])
 
-    **Arguments:**  
-        lambdaa : function or n-d matrix
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    n_volume = np.prod(bounds_high-bounds_low)
+    points_num = np.random.poisson(rate_max*n_volume)
+    points_unthinned = np.random.uniform(
+        bounds_low, bounds_high, (points_num, dimensions))
+    if callable(rate):
+        rate_ratio = np.ravel(rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
+        accept_prob = np.random.uniform(size=points_num) 
+        points_thinned = points_unthinned[rate_ratio > accept_prob, :] 
+    return(points_thinned)
+
+def MultiVarNHPPThinSamples(lambdaa, Boundaries, Samples=100, blocksize=1000, silent=0):
+    """Random points in n-dimensions with a multidimensional rate function/rate matrix. 
+    Use the thinning/acceptance-rejection algorithm.
+
+    :param　lambdaa function or n-d matrix
             Rate function. For now, the multidimensional rate cannot be constant.
         Boundaries : (2,n) matrix
             Contains the spatial boundaries in which to generate the points. Data space boundaries.

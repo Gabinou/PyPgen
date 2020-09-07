@@ -5,6 +5,54 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+# NHPP TESTING
+phase = 0
+period = 2
+amplitude = 3
+offset = 1
+rate_max = amplitude + offset
+
+
+def rate_halfsinus1D(time):
+    sins = np.sin(2.*np.pi*time/period + phase)
+    out = amplitude*(sins*(sins > 0)) + offset
+    return(out)
+
+
+bounds = [1, 10]
+out = PyPgen.NHPP(rate_halfsinus1D, rate_max, bounds)
+assert(len(out.shape) > 1)
+assert(np.amin(out) > bounds[0])
+assert(np.amax(out) < bounds[1])
+
+phase_1 = 0
+phase_2 = 0
+period_1 = 2
+period_2 = 1
+amplitude = 1
+offset = 1
+rate_max = amplitude + amplitude + offset
+
+
+def rate_halfsinus2D(x_1, x_2):
+    sins = np.sin(2.*np.pi*x_1/period_1 + phase) + \
+        np.sin(2.*np.pi*x_2/period_2 + phase)
+    out = amplitude*(sins*(sins > 0)) + offset
+    return(out)
+
+
+bounds = [[1, 10], [10, 20]]
+out = PyPgen.NHPP(rate_halfsinus2D, rate_max, bounds)
+assert(len(out.shape) > 1)
+assert(np.amin(out[:, 0]) > bounds[0][0])
+assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
+sys.exit()
+
+# HPP TESTING
+
 scripthpath = os.path.dirname(os.path.abspath(__file__))
 path2res = os.path.join(scripthpath, os.path.splitext(
     os.path.basename(__file__))[0])
@@ -33,6 +81,8 @@ out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
                          realizations=realizations)
 assert(np.amin(out[:, 0]) > bounds[0][0])
 assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
 assert(out.shape[-1] == dimensions)
 assert(out.shape[0] == samples)
 assert(out.shape == (samples, samples, samples, dimensions))
@@ -46,6 +96,8 @@ out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
                          realizations=realizations)
 assert(np.amin(out[:, 0]) > bounds[0][0])
 assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
 assert(out.shape[-1] == dimensions)
 assert(out.shape[0] == samples)
 assert((len(out.shape) - 1) == realizations)
@@ -69,6 +121,8 @@ out = PyPgen.HPP_rate(rate=rate, bounds=bounds,
                       realizations=realizations)
 assert(np.amin(out[:, 0]) > bounds[0][0])
 assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
 assert(out.shape[-1] == dimensions)
 assert((len(out.shape) - 1) == realizations)
 
@@ -91,5 +145,7 @@ dimensions = len(bounds)
 out = PyPgen.HPP_rate(rate=rate, bounds=bounds, realizations=realizations)
 assert(np.amin(out[:, 0]) > bounds[0][0])
 assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
 assert(out.shape[-1] == dimensions)
 assert((len(out.shape) - 1) == realizations)
