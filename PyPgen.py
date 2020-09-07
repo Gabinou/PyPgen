@@ -22,6 +22,7 @@ import numpy as np
 # [4] Snyder, Donald L., and Michael I. Miller. Random point processes in time and space. Springer Science & Business Media, 2012.
 # [5] Resnick, Sidney I. Adventures in stochastic processes. Springer Science & Business Media, 1992.
 # [6] Grandell, Jan. Mixed poisson processes. Vol. 77. CRC Press, 1997.
+# [7] Pasupathy, Raghu. "Generating homogeneous poisson processes." Wiley encyclopedia of operations research and management science (2010).
 
 
 def HPP_samples(samples, bounds, realizations=1):
@@ -30,7 +31,7 @@ def HPP_samples(samples, bounds, realizations=1):
     :param int samples
     :param list bounds: list-like of len = dimensions number
     :param int realizations:
-    :return: numpyndarray of samples*dimensions*realizations
+    :return: list of numpyndarray of samples
     """
     npbounds = np.array(bounds)
     npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
@@ -52,7 +53,7 @@ def HPP_rate(rate, bounds, realizations=1):
     :param float rate
     :param list bounds: list-like of len = dimensions number
     :param int realizations:
-    :return: numpyndarray of samples_realization1*samples_realization2*...*dimensions
+    :return: list of numpyndarray of samples
     """
     npbounds = np.array(bounds)
     npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
@@ -79,7 +80,7 @@ def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
     :param list bounds: list-like of 2 elements
     :param int realizations:
     :param int blocksize: exponential to generate before checking bounds
-    :return: numpyndarray of samples
+    :return: list of numpyndarray of samples
     """
     if (len(bounds) != 2):
         raise TypeError("Input bounds must have exactly two elements.")
@@ -99,6 +100,11 @@ def HPP_temporal(rate, bounds, realizations=1, blocksize=1000):
 def NHPP(rate, rate_max, bounds, realizations=1, algo="thinning"):
     """Random points in n-dimensions with a multidimensional rate function/rate matrix.
     Uses the thinning/acceptance-rejection algorithm.
+
+    :param function rate intensity function of the NHPP 
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations:
+    :return: numpyndarray of samples
     """
     npbounds = np.array(bounds)
     npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
@@ -108,9 +114,12 @@ def NHPP(rate, rate_max, bounds, realizations=1, algo="thinning"):
     bounds_high = np.amax(npbounds, axis=1)
     n_volume = np.prod(bounds_high-bounds_low)
     points_num = np.random.poisson(rate_max*n_volume)
-    points_unthinned = np.random.uniform(
-        bounds_low, bounds_high, (points_num, dimensions))
-    if callable(rate):
+    if not callable(rate):
+        raise TypeError("Rate should be a function")
+    if algo = "thinning":
+        points_unthinned = np.random.uniform(
+            bounds_low, bounds_high, (points_num, dimensions))
+
         rate_ratio = np.ravel(rate(*np.hsplit(points_unthinned, dimensions))/rate_max)
         accept_prob = np.random.uniform(size=points_num) 
         points_thinned = points_unthinned[rate_ratio > accept_prob, :] 
