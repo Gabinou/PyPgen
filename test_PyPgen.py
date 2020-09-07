@@ -129,17 +129,15 @@ bounds = [[0, 10], [0, 10]]
 dimensions = len(bounds)
 out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
                          realizations=realizations)
-assert(len(out) == realizations)
-for i in np.arange(realizations):
-    assert(np.amin(out[i][:, 0]) > bounds[0][0])
-    assert(np.amax(out[i][:, 0]) < bounds[0][1])
-    assert(np.amin(out[i][:, 1]) > bounds[1][0])
-    assert(np.amax(out[i][:, 1]) < bounds[1][1])
-    assert(len(out[i]) == samples)
+assert(np.amin(out[:, 0]) > bounds[0][0])
+assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
+assert(len(out) == samples)
 
 
 plt.title(str(samples) + " samples of a HPP in 10 unit square")
-plt.scatter(out[0][:, 0], out[0][:, 1], c="k")
+plt.scatter(out[:, 0], out[:, 1], c="k")
 plt.xlabel("X")
 plt.ylabel("Y")
 plt.savefig(os.path.join(path2res, "HPP_samples_2Dtest.png"),
@@ -154,16 +152,14 @@ bounds = [[0, 10], [0, 10]]
 dimensions = len(bounds)
 out = PyPgen.HPP_rate(rate=rate, bounds=bounds,
                       realizations=realizations)
-assert(len(out) == realizations)
-for i in np.arange(realizations):
-    assert(np.amin(out[i][:, 0]) > bounds[0][0])
-    assert(np.amax(out[i][:, 0]) < bounds[0][1])
-    assert(np.amin(out[i][:, 1]) > bounds[1][0])
-    assert(np.amax(out[i][:, 1]) < bounds[1][1])
+assert(np.amin(out[:, 0]) > bounds[0][0])
+assert(np.amax(out[:, 0]) < bounds[0][1])
+assert(np.amin(out[:, 1]) > bounds[1][0])
+assert(np.amax(out[:, 1]) < bounds[1][1])
 
 plt.title(str(len(out)) + " samples of a HPP of rate " +
           str(rate) + " in 10 unit square")
-plt.scatter(out[0][:, 0], out[0][:, 1], c="k")
+plt.scatter(out[:, 0], out[:, 1], c="k")
 plt.xlabel("X")
 plt.ylabel("Y")
 plt.savefig(os.path.join(path2res, "HPP_rate_2Dtest.png"),

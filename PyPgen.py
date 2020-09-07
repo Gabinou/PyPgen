@@ -41,6 +41,8 @@ def HPP_samples(samples, bounds, realizations=1):
     points = []
     for i in np.arange(realizations):
         points.append(np.random.uniform(bounds_low, bounds_high, (points_per_realization[i], dimensions)))
+    if realizations == 1:
+        points = points[0]
     return(points)
 
 
@@ -64,6 +66,8 @@ def HPP_rate(rate, bounds, realizations=1):
     for i in np.arange(realizations):
         points.append(np.random.uniform(
         bounds_low, bounds_high, (points_per_realization[i], dimensions)))
+    if realizations == 1:
+        points = points[0]
     return(points)
 
 
