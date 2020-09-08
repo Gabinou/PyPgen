@@ -183,9 +183,16 @@ def MaPP(rate, bounds, pairwisef, mix_prob=1, iterations=40000, burn_in=40000):
     :param int burn_in: base number of necessary iterations
     :return: numpyndarray of samples
     """
+    if not is_instance(iterations, int):
+        raise TypeError("Input iterations should be an int")
+
+    if (not np.iscalar(mix_prob)) | (mix_prob < 0) | (mix_prob > 1):
+        raise TypeError(
+            "Input mix_prob should be a number between 1 and 0 inclusive")
+
     if (not iscallable(rate)) & (not np.isscalar(rate)):
         raise TypeError(
-            "rate should be a scalar (homogeneous) or function (non-homgeneous)")
+            "Input rate should be a scalar (homogeneous) or function (non-homgeneous)")
     if np.isscalar(rate):
         rate_term = rate
     npbounds = np.array(bounds)
