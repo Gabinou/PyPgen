@@ -38,6 +38,10 @@ class TestMPP(unittest.TestCase):
 
 
 class TestNHPP(unittest.TestCase):
+    def test_typecheck(self):
+        with self.assertRaises(TypeError):
+            PyPgen.NHPP(((),), ((),), ((),),)
+
     def test_halfsinus1D(self):
         phase = 0
         period = 2
@@ -178,24 +182,18 @@ class TestHPP_samples(unittest.TestCase):
         realizations = 1
         bounds = [[0, 10], [0, 10]]
         dimensions = len(bounds)
-        try:
+        with self.assertRaises(ValueError):
             out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
                                      realizations=realizations)
-            self.assertTrue(False)
-        except:
-            self.assertTrue(True)
 
     def test_2Dlistsample(self):
         samples = [20, 10]
         realizations = 3
         bounds = [[0, 10], [0, 10]]
         dimensions = len(bounds)
-        try:
+        with self.assertRaises(ValueError):
             out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
                                      realizations=realizations)
-            self.assertTrue(False)
-        except:
-            self.assertTrue(True)
 
     def test_2Dscalarsampleplot(self):
         samples = 20
