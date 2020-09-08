@@ -6,6 +6,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+# MPP TESTING
+shape = 3
+scale = 1
+bounds = [1, 10]
+dimensions = 1
+realizations = 3
+
+
+def info(size):
+    return(np.random.gamma(shape=shape, scale=scale, size=size))
+
+
+out = PyPgen.MPP(info=info, bounds=bounds, realizations=realizations)
+assert(len(out) == realizations)
+for i in np.arange(realizations):
+    assert(np.amin(out[i][:, 0]) > bounds[0])
+    assert(np.amax(out[i][:, 0]) < bounds[1])
+    assert(out[i].shape[-1] == dimensions)
+
+
+sys.exit()
 # NHPP TESTING
 phase = 0
 period = 2

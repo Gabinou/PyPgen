@@ -36,9 +36,13 @@ Keywords: Poisson Process, Point process, Spatial Point patterns
 
 # References
 [1] Diggle, Peter J. Statistical analysis of spatial and spatio-temporal point patterns. CRC press, 2013.
+
 [2] Illian, Janine, et al. Statistical analysis and modelling of spatial point patterns. Vol. 70. John Wiley & Sons, 2008.
-    # n: current total of points
+
 [3] Jensen, Eva B. Vedel, and Linda Stougaard Nielsen. "Inhomogeneous Markov point processes by transformation." Bernoulli 6.5 (2000): 761-782.
+
 [4] Snyder, Donald L., and Michael I. Miller. Random point processes in time and space. Springer Science & Business Media, 2012.
+
 [5] Resnick, Sidney I. Adventures in stochastic processes. Springer Science & Business Media, 1992.
+
 [6] Grandell, Jan. Mixed poisson processes. Vol. 77. CRC Press, 1997.

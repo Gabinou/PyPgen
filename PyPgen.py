@@ -33,12 +33,19 @@ def HPP_samples(samples, bounds, realizations=1):
     :param int realizations:
     :return: list of numpyndarray of samples
     """
+    if np.any(samples < 0):
+        raise ValueError("Input info distribution should not produce negative values (rate > 0)")
     npbounds = np.array(bounds)
     npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
     dimensions = int(npbounds.shape[0])
     bounds_low = np.amin(npbounds, axis=1)
     bounds_high = np.amax(npbounds, axis=1)
-    points_per_realization = np.tile(samples, realizations)
+    if np.isscalar(samples):
+        points_per_realization = np.tile(samples, realizations)
+    else:
+        points_per_realization = np.ravel(samples) 
+        if(len(points_per_realization) != realizations):
+            raise ValueError("Input samples list-like should have the same length as realizations")
     points = []
     for i in np.arange(realizations):
         points.append(np.random.uniform(bounds_low, bounds_high,
@@ -129,3 +136,44 @@ def NHPP(rate, rate_max, bounds, realizations=1):
     if realizations == 1:
         points = points[0]
     return(points)
+
+
+def MPP(info, bounds, realizations=1):
+    """Random points in n-dimensions with random rate according to info
+    Uses the thinning/acceptance-rejection algorithm.
+
+    :param function info only input of info should be size of samples
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations:
+    :return: numpyndarray of samples
+    """
+    npbounds = np.array(bounds)
+    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    dimensions = int(npbounds.shape[0])
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    n_volume = np.prod(bounds_high-bounds_low)
+    random_rates = info(realizations)
+    if np.any(random_rates < 0):
+        raise ValueError("Info distribution should not produce negative values (rate > 0)")
+    points_per_realization = np.random.poisson(
+        np.multiply(random_rates, n_volume), realizations).astype(int)
+    points = []
+    for i in np.arange(realizations):
+        points.append(np.random.uniform(
+            bounds_low, bounds_high, (points_per_realization[i], dimensions)))
+    if realizations == 1:
+        points = points[0]
+    return(points)
+
+
+def MaPP(rate, rate_max, bounds, realizations=1):
+    """Random points in n-dimensions with a multidimensional rate function
+    Uses the thinning/acceptance-rejection algorithm.
+
+    :param function rate intensity function of the NHPP 
+    :param list bounds: list-like of len = dimensions number
+    :param int realizations:
+    :return: numpyndarray of samples
+    """
+    pass
