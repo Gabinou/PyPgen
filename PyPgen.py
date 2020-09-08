@@ -26,7 +26,7 @@ import numpy as np
 # [8] Geyer, Charles J., and Jesper Møller. "Simulation procedures and likelihood inference for spatial point processes." Scandinavian journal of statistics (1994): 359-373.
 
 
-def bounds2array(bounds):
+def checkbounds(bounds):
     if (not isinstance(bounds, list)) & (not isinstance(bounds, np.ndarray)) & (not isinstance(bounds, tuple)):
         raise TypeError("Input bounds should be list, np.array or tuple")
     npbounds = np.array(bounds)
@@ -52,7 +52,7 @@ def HPP_samples(samples, bounds, realizations=1):
     if np.any(np.ravel(samples) < 0):
         raise ValueError(
             "Input samples should not be negative")
-    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
+    npbounds, bounds_low, bounds_high, dimensions = checkbounds(bounds)
 
     if np.isscalar(samples):
         points_per_realization = np.tile(samples, realizations)
@@ -78,7 +78,7 @@ def HPP_rate(rate, bounds, realizations=1):
     :param int realizations:
     :return: list of numpyndarray of samples
     """
-    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
+    npbounds, bounds_low, bounds_high, dimensions = checkbounds(bounds)
     n_volume = np.prod(bounds_high-bounds_low)
     points_per_realization = np.random.poisson(
         rate*n_volume, realizations).astype(int)
@@ -126,7 +126,7 @@ def NHPP(rate, rate_max, bounds, realizations=1):
     :param int realizations:
     :return: numpyndarray of samples
     """
-    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
+    npbounds, bounds_low, bounds_high, dimensions = checkbounds(bounds)
     n_volume = np.prod(bounds_high - bounds_low)
     points = []
     if not callable(rate):
@@ -153,7 +153,7 @@ def MPP(info, bounds, realizations=1):
     :param int realizations:
     :return: numpyndarray of samples
     """
-    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
+    npbounds, bounds_low, bounds_high, dimensions = checkbounds(bounds)
     n_volume = np.prod(bounds_high-bounds_low)
     random_rates = info(realizations)
     if np.any(random_rates < 0):
@@ -199,7 +199,7 @@ def MaPP(rate, bounds, pairwisef, mix_prob=1, iterations=40000, burn_in=40000):
             "Input rate should be a scalar (homogeneous) or function (non-homgeneous)")
     if np.isscalar(rate):
         rate_term = rate
-    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
+    npbounds, bounds_low, bounds_high, dimensions = checkbounds(bounds)
     n_volume = np.prod(bounds_high - bounds_low)
 
     replace_prob = 1 - mix_prob
