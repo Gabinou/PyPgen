@@ -26,7 +26,6 @@ for i in np.arange(realizations):
     assert(out[i].shape[-1] == dimensions)
 
 
-sys.exit()
 # NHPP TESTING
 phase = 0
 period = 2
@@ -152,6 +151,42 @@ for i in np.arange(realizations):
     assert(np.amin(out[i][:, 1]) > bounds[1][0])
     assert(np.amax(out[i][:, 1]) < bounds[1][1])
     assert(len(out[i]) == samples)
+
+samples = [3, 4, 5]
+realizations = 3
+bounds = [[0, 10], [0, 10]]
+dimensions = len(bounds)
+out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
+                         realizations=realizations)
+assert(len(out) == realizations)
+for i in np.arange(realizations):
+    assert(np.amin(out[i][:, 0]) > bounds[0][0])
+    assert(np.amax(out[i][:, 0]) < bounds[0][1])
+    assert(np.amin(out[i][:, 1]) > bounds[1][0])
+    assert(np.amax(out[i][:, 1]) < bounds[1][1])
+    assert(len(out[i]) == samples[i])
+
+samples = [20, 10]
+realizations = 1
+bounds = [[0, 10], [0, 10]]
+dimensions = len(bounds)
+try:
+    out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
+                             realizations=realizations)
+    assert(False)
+except:
+    assert(True)
+
+samples = [20, 10]
+realizations = 3
+bounds = [[0, 10], [0, 10]]
+dimensions = len(bounds)
+try:
+    out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
+                             realizations=realizations)
+    assert(False)
+except:
+    assert(True)
 
 samples = 20
 realizations = 1

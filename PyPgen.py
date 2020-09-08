@@ -33,7 +33,7 @@ def HPP_samples(samples, bounds, realizations=1):
     :param int realizations:
     :return: list of numpyndarray of samples
     """
-    if np.any(samples < 0):
+    if np.any(np.ravel(samples) < 0):
         raise ValueError("Input info distribution should not produce negative values (rate > 0)")
     npbounds = np.array(bounds)
     npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
