@@ -26,6 +26,21 @@ import numpy as np
 # [8] Geyer, Charles J., and Jesper Møller. "Simulation procedures and likelihood inference for spatial point processes." Scandinavian journal of statistics (1994): 359-373.
 
 
+def bounds2array(bounds):
+    if (not isinstance(bounds, list)) & (not isinstance(bounds, np.ndarray)) & (not isinstance(bounds, tuple)):
+        raise TypeError("Input bounds should be list, np.array or tuple")
+    npbounds = np.array(bounds)
+    try:
+        npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
+    except:
+        raise ValueError("Input bounds should have dimensions*2 elements")
+    dimensions = int(npbounds.shape[0])
+
+    bounds_low = np.amin(npbounds, axis=1)
+    bounds_high = np.amax(npbounds, axis=1)
+    return(npbounds, bounds_low, bounds_high, dimensions)
+
+
 def HPP_samples(samples, bounds, realizations=1):
     """ Generate fixed HPP samples in bounds.
 
@@ -36,12 +51,9 @@ def HPP_samples(samples, bounds, realizations=1):
     """
     if np.any(np.ravel(samples) < 0):
         raise ValueError(
-            "Input info distribution should not produce negative values (rate > 0)")
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
+            "Input samples should not be negative")
+    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
+
     if np.isscalar(samples):
         points_per_realization = np.tile(samples, realizations)
     else:
@@ -66,11 +78,7 @@ def HPP_rate(rate, bounds, realizations=1):
     :param int realizations:
     :return: list of numpyndarray of samples
     """
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
+    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
     n_volume = np.prod(bounds_high-bounds_low)
     points_per_realization = np.random.poisson(
         rate*n_volume, realizations).astype(int)
@@ -118,12 +126,7 @@ def NHPP(rate, rate_max, bounds, realizations=1):
     :param int realizations:
     :return: numpyndarray of samples
     """
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
+    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
     n_volume = np.prod(bounds_high - bounds_low)
     points = []
     if not callable(rate):
@@ -150,11 +153,7 @@ def MPP(info, bounds, realizations=1):
     :param int realizations:
     :return: numpyndarray of samples
     """
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
+    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
     n_volume = np.prod(bounds_high-bounds_low)
     random_rates = info(realizations)
     if np.any(random_rates < 0):
@@ -183,23 +182,24 @@ def MaPP(rate, bounds, pairwisef, mix_prob=1, iterations=40000, burn_in=40000):
     :param int burn_in: base number of necessary iterations
     :return: numpyndarray of samples
     """
-    if not is_instance(iterations, int):
+    if not isinstance(iterations, int):
         raise TypeError("Input iterations should be an int")
+    if not isinstance(burn_in, int):
+        raise TypeError("Input burn_in should be an int")
 
-    if (not np.iscalar(mix_prob)) | (mix_prob < 0) | (mix_prob > 1):
+    if (not np.isscalar(mix_prob)) | (mix_prob < 0) | (mix_prob > 1):
         raise TypeError(
             "Input mix_prob should be a number between 1 and 0 inclusive")
 
-    if (not iscallable(rate)) & (not np.isscalar(rate)):
+    if (not callable(pairwisef)):
+        raise TypeError("Input pairwisef should be a function")
+
+    if (not callable(rate)) & (not np.isscalar(rate)):
         raise TypeError(
             "Input rate should be a scalar (homogeneous) or function (non-homgeneous)")
     if np.isscalar(rate):
         rate_term = rate
-    npbounds = np.array(bounds)
-    npbounds = np.reshape(npbounds, (int(len(np.ravel(npbounds))/2), 2))
-    dimensions = int(npbounds.shape[0])
-    bounds_low = np.amin(npbounds, axis=1)
-    bounds_high = np.amax(npbounds, axis=1)
+    npbounds, bounds_low, bounds_high, dimensions = bounds2array(bounds)
     n_volume = np.prod(bounds_high - bounds_low)
 
     replace_prob = 1 - mix_prob
@@ -220,14 +220,14 @@ def MaPP(rate, bounds, pairwisef, mix_prob=1, iterations=40000, burn_in=40000):
                 tentative_points = np.copy(np.append(points, new_point))
                 density_point = np.prod(
                     pairwisef(np.tile(new_point, n), points))
-                if iscallable(rate):
+                if callable(rate):
                     rate_term = rate(new_point)
             elif (chosen == 1):
                 todelete = np.random.randint(0, n)
                 tentative_points = np.copy(np.delete(points, (todelete % n)))
                 density_point = np.prod(
                     pairwisef(np.tile(points[todelete], len(tentative_points)), tentative_points))
-                if iscallable(rate):
+                if callable(rate):
                     rate_term = rate(points[todelete])
             elif (chosen == 2):
                 new_point = np.random.uniform(
@@ -237,7 +237,7 @@ def MaPP(rate, bounds, pairwisef, mix_prob=1, iterations=40000, burn_in=40000):
                 tentative_points[toreplace] = new_point
                 density_point = np.cumprod(
                     pairwisef(np.repeat(new_point, n), points, *pairwisef_params))[-1]
-                if iscallable(rate):
+                if callable(rate):
                     rate_term = rate(new_point)
 
             m = len(tentative_points)

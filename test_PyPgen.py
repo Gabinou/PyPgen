@@ -14,11 +14,28 @@ if not os.path.exists(path2res):
 
 
 class TestMaPP(unittest.TestCase):
-    def test_basic(self):
-        pass
+    def test_input(self):
+        def pairwise_test(points_1, points_2):
+            pass
+        rate = ((),)
+        bounds = 1
+        pairwisef = pairwise_test
+        mix_prob = 1
+        iterations = 1
+        burn_in = 1
+        with self.assertRaises(TypeError):
+            out = PyPgen.MaPP(rate=rate, bounds=bounds, pairwisef=pairwisef,
+                              mix_prob=mix_prob, iterations=iterations, burn_in=burn_in)
+        rate = 1
+        with self.assertRaises(TypeError):
+            out = PyPgen.MaPP(rate=rate, bounds=bounds, pairwisef=pairwisef,
+                              mix_prob=mix_prob, iterations=iterations, burn_in=burn_in)
 
 
 class TestMPP(unittest.TestCase):
+    def test_stats(self):
+        pass
+
     def test_basic(self):
         shape = 3
         scale = 1
