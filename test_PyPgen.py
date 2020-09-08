@@ -13,6 +13,11 @@ if not os.path.exists(path2res):
     os.makedirs(path2res)
 
 
+class TestMaPP(unittest.TestCase):
+    def test_basic(self):
+        pass
+
+
 class TestMPP(unittest.TestCase):
     def test_basic(self):
         shape = 3
