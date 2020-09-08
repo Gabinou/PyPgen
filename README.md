@@ -10,15 +10,15 @@ Some of the HPP's properties can be relaxed, leading to many kinds of point proc
 
 ## Notes on HPP generation
 
-Points of an HPP can be generated using only *numpy*: they are presented for convenience, and apply only to rectangular space.
-With the HPP parameter *\lambda*, the total number of counts in the space *N(A) ~ Poisson(|A|\lambda)*, and can be generated using *np.random.poisson* if need be.
+Points of an HPP can be generated using only `numpy`: they are presented for convenience, and apply only to rectangular space.
+With the HPP parameter *\lambda*, the total number of counts in the space *N(A) ~ Poisson(|A|\*\lambda)*, and can be generated using `np.random.poisson` if need be.
 Then, you only need to generate *N(A)* samples uniformly distributed in *A* using *np.random.uniform* for each dimension.
 If the data space is not recangular, the points can be generated in any convenient shape and only the points which lie in *A* need be retained.
 Other algorithms exist, some implementations of which are given here.
 
 ## MISC
 
-Prerequisites: *scipy*, *numpy*.
+Prerequisites: `scipy`, `numpy`.
 
 Keywords: Poisson Process, Point process, Spatial Point patterns
 

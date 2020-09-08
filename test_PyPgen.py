@@ -177,7 +177,7 @@ class TestHPP_samples(unittest.TestCase):
             self.assertTrue(np.amax(out[i][:, 1]) < bounds[1][1])
             self.assertTrue(len(out[i]) == samples[i])
 
-    def test_3D(self):
+    def test_realizations_samples(self):
         samples = [20, 10]
         realizations = 1
         bounds = [[0, 10], [0, 10]]
@@ -185,9 +185,6 @@ class TestHPP_samples(unittest.TestCase):
         with self.assertRaises(ValueError):
             out = PyPgen.HPP_samples(samples=samples, bounds=bounds,
                                      realizations=realizations)
-
-    def test_2Dlistsample(self):
-        samples = [20, 10]
         realizations = 3
         bounds = [[0, 10], [0, 10]]
         dimensions = len(bounds)
